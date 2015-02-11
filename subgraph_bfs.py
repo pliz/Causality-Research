@@ -20,21 +20,21 @@ def subgraphs_in_eq(g, gu, rate):
     s = []
 
     #initialization for edgetuples with only 1 edge
-    initialedges = edgelist(g)
+    initialedges = tool.edgelist(g)
     edgesleft = copy.deepcopy(initialedges)   
     #when an edgetuple consists of only 1 edge, it needs to be handled individually
     for edge in initialedges:
         #print "new edge: ",edge
-        delanedge(g,edge)
-        testgu =  undersample(g,rate)
+        tool.delanedge(g,edge)
+        testgu =  tool.undersample(g,rate)
         if testgu == gu:
             #print "deletion of the edge ", edge, " produces the same gu"
             addg = copy.deepcopy(g)
             s.append(addg)
-            addanedge(g,edge)
+            tool.addanedge(g,edge)
         else:
             #print "deletion of the edge ", edge, " doesn't produce the same gu"
-            addanedge(g,edge)
+            tool.addanedge(g,edge)
             edgesleft.remove(edge)
 
     #initialization for edgetuples with 2+edges
@@ -44,18 +44,18 @@ def subgraphs_in_eq(g, gu, rate):
         edgetuples.append(comb)
         edgetuplesleft.append(comb)
     #when an edgetuple consists of 2+ edges
-    for i in range(2,numofvertices(g)+1):
+    for i in range(2,tool.numofvertices(g)+1):
         for edgetuple in edgetuples:
             for edge in edgetuple:
-                delanedge(g,edge)
-            testgu = undersample(g,rate)
+                tool.delanedge(g,edge)
+            testgu = tool.undersample(g,rate)
             if testgu == gu:
                 addg = copy.deepcopy(g)
                 s.append(addg)
             else:
                 edgetuplesleft.remove(edgetuple)     
             for edge in edgetuple:
-                addanedge(g,edge)
+                tool.addanedge(g,edge)
         if not edgetuplesleft:  
             break
         else:
@@ -74,15 +74,15 @@ def findminG1(g,gu,rate):
     if not s:
         return g
     else:
-        edges = edgelist(g)
+        edges = tool.edgelist(g)
         minnumedge=len(edges)
         for graph in s:
-            edges = edgelist(graph)
+            edges = tool.edgelist(graph)
             numedge = len(edges)
             if minnumedge > numedge:
                 minnumedge = numedge
                 smallestgraph = graph
-        print g2num(smallestgraph)
+        print tool.g2num(smallestgraph)
         return smallestgraph
 
 
@@ -124,7 +124,7 @@ def main():
     '4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
     '5': {'1': set([(0, 1)])}
     }
-    g3 = undersample(g,2)
+    g3 = tool.undersample(g,2)
     #h1-h3 are all subrgraphs of g that lead to the same g3
     #note h1 is the minimal G1
     h1 = {
