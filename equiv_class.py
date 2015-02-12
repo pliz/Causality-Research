@@ -153,8 +153,8 @@ def findminG1(g,gu,rate):
                 smallestgraph = graph
         return (smallestgraph,tool.g2num(smallestgraph))
 
-#finds all the equivalence classes of a graph g given a rate
-def findEquivClass(g, gu, rate):
+#finds all the super and subgraphs of a graph g given a rate
+def findAllGraphs(g, gu, rate):
     (a,a1) = subgraphs_in_eq(g,gu,rate)
     (b,b1) = supergraphs_in_eq(g,gu,rate)
     c = a+b
