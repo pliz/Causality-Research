@@ -161,6 +161,70 @@ def findAllGraphs(g, gu, rate):
     c1 = a1 | b1
     return (c,c1)
 
+
+#gu to g1 algorithm
+#NOT YET WORKABLE
+def gutog1(gu):
+    if tool.undersample(g,rate) != gu:
+        raise ValueError('g is not in equivalence class of gu')
+
+    #list of supergraphs in same equiv class as g
+    s = []
+
+    #initialization for edgetuples with only 1 edge
+    initialedges = tool.edgelist(tool.complement(g))
+    edgesleft = copy.deepcopy(initialedges)   
+    #when an edgetuple consists of only 1 edge, it needs to be handled individually
+    for edge in initialedges:
+        #print "new edge: ",edge
+        tool.addanedge(g,edge)
+        testgu =  tool.undersample(g,rate)
+        if testgu == gu:
+            #print "addition of the edge ", edge, " produces the same gu"
+            addg = copy.deepcopy(g)
+            s.append(addg)
+            tool.delanedge(g,edge)
+        else:
+            #print "addition of the edge ", edge, " doesn't produce the same gu"
+            tool.delanedge(g,edge)
+            edgesleft.remove(edge)
+
+    #initialization for edgetuples with 2+edges
+    edgetuples = []
+    edgetuplesleft = []
+    for comb in combinations(edgesleft,2):
+        edgetuples.append(comb)
+        edgetuplesleft.append(comb)
+    #when an edgetuple consists of 2+ edges
+    for i in range(2,tool.numofvertices(g)+1):
+        for edgetuple in edgetuples:
+            for edge in edgetuple:
+                tool.addanedge(g,edge)
+            testgu = tool.undersample(g,rate)
+            if testgu == gu:
+                addg = copy.deepcopy(g)
+                s.append(addg)
+                tool.delanedge(g,edge)
+            else:
+                edgetuplesleft.remove(edgetuple)     
+            for edge in edgetuple:
+                tool.delanedge(g,edge)
+        if not edgetuplesleft:  
+            break
+        else:
+            oldedgetuples = edgetuplesleft
+            edgetuples = []
+            edgetuplesleft = []
+            for comb in combinations(oldedgetuples,i+1):
+                edgetuples.append(comb)
+                edgetuplesleft.append(comb)
+    s1 = set()  #want to return a set of supergraphs
+    for graph in s:
+        s1.add(tool.g2num(graph))
+    #s contains dictionary graph notation
+    #s1 contains string graph notation
+    return (s,s1)
+
 def main():
 
     #TESTING SUPERGRAPH
