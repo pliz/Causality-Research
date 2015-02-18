@@ -173,28 +173,32 @@ def gutog1(gu):
     for edge in edgelist(gu):
         delanedge(G_test,edge)
     #G_test is gu with all edges removed
+
     G1_found = False
     test_u = 1
+
     while G1_found == False:
         #initialization for edgetuples with only 1 edge
         initialedges = tool.edgelist(tool.superclique(gu))
-        ###this far###
         edgesleft = copy.deepcopy(initialedges)   
         #when an edgetuple consists of only 1 edge, it needs to be handled individually
         for edge in initialedges:
-            #print "new edge: ",edge
             tool.addanedge(G_test,edge)
-            testgu =  tool.undersample(g,rate)
+            testgu =  tool.undersample(G_test,test_u)
             if testgu == gu:
-                #print "addition of the edge ", edge, " produces the same gu"
-                addg = copy.deepcopy(g)
-                s.append(addg)
-                tool.delanedge(g,edge)
+                G1 = copy.deepcopy(G_test)
+                G1_found = True
+                tool.delanedge(G_test,edge)
             else:
-                #print "addition of the edge ", edge, " doesn't produce the same gu"
-                tool.delanedge(g,edge)
+                tool.delanedge(G_test,edge)
                 edgesleft.remove(edge)
 
+        if G1_found == True:
+            break
+
+        ####THIS FAR####
+
+        
         #initialization for edgetuples with 2+edges
         edgetuples = []
         edgetuplesleft = []
