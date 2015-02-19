@@ -195,7 +195,6 @@ def gutog1(h,max_u):
             return (G1, u1)
             break
 
-        ##PROBLEMS BEGINS HERE##
 
         #initialization for edgetuples with 2+edges
         edgetuples = []
@@ -232,6 +231,7 @@ def gutog1(h,max_u):
                 break
             else:
                 print edgetuples
+                #here is the bug!
                 edgetuples = tool.createNextEi(edgetuples,i)
                 print edgetuples
                 edgetuplesleft = copy.deepcopy(edgetuples) 

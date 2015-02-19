@@ -15,6 +15,7 @@ def createNextEi(oldEi,i):
     for tuple in oldEi:
         for k in range(0,i):
             set1.add(tuple[k])
+            #combinations fails if cardinality of set1 < i+1
     combs = combinations(set1,i+1)
     for comb in combs:
         smallercombsset = set()
@@ -26,7 +27,7 @@ def createNextEi(oldEi,i):
     return newEi
 
 def createNextEi2(oldEi,i):
-    
+
         
 #returns all the edges of graph g in the form [('s','e'),('s','e'),....]
 def edgelist(g): 
