@@ -1,8 +1,35 @@
 #collection of helper functions
 
-from itertools import permutations
+from itertools import permutations,combinations
 
-def createNextEi():
+
+def createNextEi(oldEi,i):
+    
+    newEi = []
+
+    oldEiset = set()
+    for tuple in oldEi:
+        oldEiset.add(tuple)
+
+    set1 = set()
+    for tuple in oldEi:
+        for k in range(0,i):
+            set1.add(tuple[k])
+
+    combs = combinations(set1,i+1)
+    for comb in combs:
+        smallercombsset = set()
+        smallercombs = combinations(comb,i)
+        for smallercomb in smallercombs:
+            smallercombsset.add(smallercomb)
+        if smallercombsset.issubset(oldEiset):
+            newEi.append(comb)
+
+    return newEi
+        
+
+
+
 
 
 
