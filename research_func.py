@@ -61,6 +61,7 @@ def supergraphs_in_eq(g, gu, rate):
         if not edgetuplesleft:  
             break
         else:
+            #ERROR
             oldedgetuples = edgetuplesleft
             edgetuples = []
             edgetuplesleft = []
@@ -125,6 +126,7 @@ def subgraphs_in_eq(g, gu, rate):
         if not edgetuplesleft:  
             break
         else:
+            #ERROR
             oldedgetuples = edgetuplesleft
             edgetuples = []
             edgetuplesleft = []
@@ -165,28 +167,27 @@ def findAllGraphs(g, gu, rate):
 
 #gu to g1 algorithm
 #NOT YET WORKABLE
-def gutog1(gu):
-    if tool.undersample(g,rate) != gu:
-        raise ValueError('g is not in equivalence class of gu')
+def gutog1(h):
 
-    G_test = copy.deepcopy(gu)
-    for edge in edgelist(gu):
+    G_test = copy.deepcopy(h)
+    for edge in edgelist(h):
         delanedge(G_test,edge)
-    #G_test is gu with all edges removed
+    #G_test is h with all edges removed
 
     G1_found = False
-    test_u = 1
+    u = 1
 
     while G1_found == False:
         #initialization for edgetuples with only 1 edge
-        initialedges = tool.edgelist(tool.superclique(gu))
+        initialedges = tool.edgelist(tool.superclique(h))
         edgesleft = copy.deepcopy(initialedges)   
         #when an edgetuple consists of only 1 edge, it needs to be handled individually
         for edge in initialedges:
             tool.addanedge(G_test,edge)
             testgu =  tool.undersample(G_test,test_u)
-            if testgu == gu:
+            if testgu == h:
                 G1 = copy.deepcopy(G_test)
+                u1 = u
                 G1_found = True
                 tool.delanedge(G_test,edge)
             else:
@@ -194,11 +195,12 @@ def gutog1(gu):
                 edgesleft.remove(edge)
 
         if G1_found == True:
+            return (G1, u1)
             break
 
         ####THIS FAR####
 
-        
+
         #initialization for edgetuples with 2+edges
         edgetuples = []
         edgetuplesleft = []

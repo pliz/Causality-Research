@@ -1,6 +1,11 @@
 #collection of helper functions
 
 from itertools import permutations
+
+def createNextEi():
+
+
+
 #returns all the edges of graph g in the form [('s','e'),('s','e'),....]
 def edgelist(g): 
     l = []
