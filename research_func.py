@@ -1,6 +1,6 @@
 #BFS implementation of subgraph and supergraph
 #Gu to G1 algorithm
-from itertools import permutations, combinations
+from itertools import combinations
 import copy
 
 import sys,os
