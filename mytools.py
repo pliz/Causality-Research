@@ -1,6 +1,7 @@
 #collection of helper functions
 from itertools import permutations,combinations
 
+#WORKS FOR SUBGRAPHS AND SUPERGRAPHS
 #newEi consists of elements of the form
 # (e1,e2,...ei+1) where
 #every possible combination of size i 
@@ -23,6 +24,9 @@ def createNextEi(oldEi,i):
         if smallercombsset.issubset(oldEiset):
             newEi.append(comb)
     return newEi
+
+def createNextEi2(oldEi,i):
+    
         
 #returns all the edges of graph g in the form [('s','e'),('s','e'),....]
 def edgelist(g): 

@@ -45,7 +45,7 @@ def supergraphs_in_eq(g, gu, rate):
         edgetuples.append(comb)
         edgetuplesleft.append(comb)
     #when an edgetuple consists of 2+ edges
-    for i in range(2,tool.numofvertices(g)+1):
+    for i in range(2,(tool.numofvertices(g))**2+1):
         for edgetuple in edgetuples:
             for edge in edgetuple:
                 tool.addanedge(g,edge)
@@ -108,7 +108,7 @@ def subgraphs_in_eq(g, gu, rate):
         edgetuples.append(comb)
         edgetuplesleft.append(comb)
     #when an edgetuple consists of 2+ edges
-    for i in range(2,tool.numofvertices(g)+1):
+    for i in range(2,(tool.numofvertices(g))**2+1):
         for edgetuple in edgetuples:
             for edge in edgetuple:
                 tool.delanedge(g,edge)
@@ -176,7 +176,10 @@ def gutog1(h,max_u):
         edgesleft = copy.deepcopy(initialedges)   
         #when an edgetuple consists of only 1 edge, it needs to be handled individually
         for edge in initialedges:
+            #print "adding edge: ", edge, " to ", G_test, " gives "
             tool.addanedge(G_test,edge)
+            #print G_test
+            #print "\n"
             testgu =  tool.undersample(G_test,u)
             if testgu == h:
                 G1 = copy.deepcopy(G_test)
@@ -185,12 +188,14 @@ def gutog1(h,max_u):
                 tool.delanedge(G_test,edge)
             else:
                 tool.delanedge(G_test,edge)
-                edgesleft.remove(edge)
+                #edgesleft.remove(edge)
 
         if G1_found == True:
             print (G1,u1)
             return (G1, u1)
             break
+
+        ##PROBLEMS BEGINS HERE##
 
         #initialization for edgetuples with 2+edges
         edgetuples = []
@@ -199,11 +204,19 @@ def gutog1(h,max_u):
             edgetuples.append(comb)
             edgetuplesleft.append(comb)
         #when an edgetuple consists of 2+ edges
-        for i in range(2,tool.numofvertices(h)+1):
+        for i in range(2,(tool.numofvertices(h))**2+1):
+            print "-------------", i, "-----------------"
             for edgetuple in edgetuples:
+                print "adding ", edgetuple, " to ",G_test, " gives us "
                 for edge in edgetuple:
                     tool.addanedge(G_test,edge)
+                print G_test
+                print "\n"
                 testgu = tool.undersample(G_test,u)
+                print " And undersampling by ", u, " gives us ", testgu
+                print "\n"
+                print "\n"
+                print "\n"
                 if testgu == h:
                     G1 = copy.deepcopy(G_test)
                     u1 = u
@@ -211,14 +224,16 @@ def gutog1(h,max_u):
                     return (G1,u1)
                     G1_found = True
                     tool.delanedge(G_test,edge)
-                else:
-                    edgetuplesleft.remove(edgetuple)     
+                #else:
+                    #edgetuplesleft.remove(edgetuple)     
                 for edge in edgetuple:
                     tool.delanedge(G_test,edge)
             if not edgetuplesleft:  
                 break
             else:
+                print edgetuples
                 edgetuples = tool.createNextEi(edgetuples,i)
+                print edgetuples
                 edgetuplesleft = copy.deepcopy(edgetuples) 
         u = u + 1
         if u == max_u:
@@ -380,17 +395,18 @@ def main():
     '4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
     }
 
+   
     #G2 is the undersampled structure
-    G2 = tool.undersample(g, 1)
+    G2 = tool.undersample(G, 1)
 
-    G2 = {
-    '1': {'1': set([(0, 1)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}, 
-    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)])}, 
-    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])}, 
-    '4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
-    }
-    
-    max_u=10
+    #G2 = {
+    #'1': {'1': set([(0, 1)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}, 
+    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)])}, 
+    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])}, 
+    #'4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
+    #}
+
+    max_u=2
     gutog1(G2,max_u) #should give G but isn't....
 
 
