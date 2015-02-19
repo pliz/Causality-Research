@@ -1,21 +1,19 @@
 #collection of helper functions
-
 from itertools import permutations,combinations
 
-
+#newEi consists of elements of the form
+# (e1,e2,...ei+1) where
+#every possible combination of size i 
+#chosen from e1,e2...ei+1 is in oldEi
 def createNextEi(oldEi,i):
-    
     newEi = []
-
     oldEiset = set()
     for tuple in oldEi:
         oldEiset.add(tuple)
-
     set1 = set()
     for tuple in oldEi:
         for k in range(0,i):
             set1.add(tuple[k])
-
     combs = combinations(set1,i+1)
     for comb in combs:
         smallercombsset = set()
@@ -24,15 +22,8 @@ def createNextEi(oldEi,i):
             smallercombsset.add(smallercomb)
         if smallercombsset.issubset(oldEiset):
             newEi.append(comb)
-
     return newEi
         
-
-
-
-
-
-
 #returns all the edges of graph g in the form [('s','e'),('s','e'),....]
 def edgelist(g): 
     l = []

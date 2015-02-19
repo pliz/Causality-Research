@@ -61,18 +61,15 @@ def supergraphs_in_eq(g, gu, rate):
         if not edgetuplesleft:  
             break
         else:
-            #ERROR
-            oldedgetuples = edgetuplesleft
-            edgetuples = []
-            edgetuplesleft = []
-            for comb in combinations(oldedgetuples,i+1):
-                edgetuples.append(comb)
-                edgetuplesleft.append(comb)
+            edgetuples = tool.createNextEi(edgetuples,i)
+            edgetuplesleft = copy.deepcopy(edgetuples) 
+
     s1 = set()  #want to return a set of supergraphs
     for graph in s:
         s1.add(tool.g2num(graph))
     #s contains dictionary graph notation
     #s1 contains string graph notation
+    print (s,s1)
     return (s,s1)
 
 #returns all the subgraphs of g that are in the same equivalence class
@@ -126,18 +123,14 @@ def subgraphs_in_eq(g, gu, rate):
         if not edgetuplesleft:  
             break
         else:
-            #ERROR
-            oldedgetuples = edgetuplesleft
-            edgetuples = []
-            edgetuplesleft = []
-            for comb in combinations(oldedgetuples,i+1):
-                edgetuples.append(comb)
-                edgetuplesleft.append(comb)
+            edgetuples = tool.createNextEi(edgetuples,i)
+            edgetuplesleft = copy.deepcopy(edgetuples) 
     s1 = set()  #want to return a set of subgraphs
     for graph in s:
         s1.add(tool.g2num(graph))
     #s contains dictionary graph notation
     #s1 contains string graph notation
+    print (s,s1)
     return (s,s1)
 
 #find the smallest graph in the same equivalence class as g
@@ -237,6 +230,10 @@ def gutog1(h):
         #s1 contains string graph notation
         return (s,s1)
 
+
+        
+
+
 def main():
 
     #TESTING SUPERGRAPH
@@ -267,7 +264,7 @@ def main():
     #'7': {'8': set([(0, 1)])},
     #'8': {'1': set([(0, 1)]),'3': set([(0, 1)]),'4': set([(0, 1)]),'7': set([(0, 1)]),'8': set([(0, 1)])}
     #}
-    #g2 = undersample(g, 1)
+    #g2 = tool.undersample(g, 1)
     #h is a supergraph in the equivalence class of g with the extra edge (5,7) 
     #h = {
     #'1': {'2': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
@@ -282,14 +279,14 @@ def main():
     #supergraphs_in_eq(g, g2, 1) #contains h! yay!
 
     #from email
-    g = {
-    '1': {'2': set([(0, 1)])},
-    '2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    '3': {'4': set([(0, 1)])},
-    '4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    '5': {'1': set([(0, 1)])}
-    }
-    g3 = tool.undersample(g,2)
+    #g = {
+    #'1': {'2': set([(0, 1)])},
+    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
+    #'3': {'4': set([(0, 1)])},
+    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
+    #'5': {'1': set([(0, 1)])}
+    #}
+    #g3 = tool.undersample(g,2)
     #h1-h4 are ALL the supergraphs of g that lead to the same g3
     #h1 = {
     #'1': {'2': set([(0, 1)]), '3': set([(0, 1)])},
@@ -357,42 +354,44 @@ def main():
     #subgraphs_in_eq(g, g2, 1) #contains h! yay!
 
     #from email
-    g = {
-    '1': {'2': set([(0, 1)])},
-    '2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    '3': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    '4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    '5': {'1': set([(0, 1)])}
-    }
-    g3 = tool.undersample(g,2)
+    #g = {
+    #'1': {'2': set([(0, 1)])},
+    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
+    #'3': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
+    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
+    #'5': {'1': set([(0, 1)])}
+    #}
+    #g3 = tool.undersample(g,2)
     #h1-h3 are all subrgraphs of g that lead to the same g3
     #note h1 is the minimal G1
-    h1 = {
-    '1': {'2': set([(0, 1)])},
-    '2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    '3': {'4': set([(0, 1)])},
-    '4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    '5': {'1': set([(0, 1)])}
-    }
-    h2 = {
-    '1': {'2': set([(0, 1)])},
-    '2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    '3': {'2': set([(0, 1)]), '4': set([(0, 1)])},
-    '4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    '5': {'1': set([(0, 1)])}
-    }
-    h3 = {
-    '1': {'2': set([(0, 1)])},
-    '2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    '3': {'4': set([(0, 1)]), '5': set([(0, 1)])},
-    '4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    '5': {'1': set([(0, 1)])}
-    }
+    #h1 = {
+    #'1': {'2': set([(0, 1)])},
+    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
+    #'3': {'4': set([(0, 1)])},
+    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
+    #'5': {'1': set([(0, 1)])}
+    #}
+    #h2 = {
+    #'1': {'2': set([(0, 1)])},
+    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
+    #'3': {'2': set([(0, 1)]), '4': set([(0, 1)])},
+    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
+    #'5': {'1': set([(0, 1)])}
+    #}
+    #h3 = {
+    #'1': {'2': set([(0, 1)])},
+    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
+    #'3': {'4': set([(0, 1)]), '5': set([(0, 1)])},
+    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
+    #'5': {'1': set([(0, 1)])}
+    #}
 
-    supergraphs_in_eq(g, g3, 2)
-    subgraphs_in_eq(g, g3, 2) #h1-h3 are all found! yay!
-    findminG1(g,g3,2)   #returns h1
-    findEquivClass(g, g3, 2)
+    #supergraphs_in_eq(g, g3, 2)
+    #subgraphs_in_eq(g, g3, 2) #h1-h3 are all found! yay!
+    #findminG1(g,g3,2)   #returns h1
+    #findEquivClass(g, g3, 2)
+
+
 
 if __name__ == "__main__":
     main()
