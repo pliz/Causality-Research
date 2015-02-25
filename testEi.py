@@ -1,5 +1,11 @@
 from itertools import combinations
 
+import sys,os
+TOOLSPATH='~/Users/cynthia/Desktop/Causality/Causality-Research/mytools.py'
+sys.path.append(os.path.expanduser(TOOLSPATH))
+
+import mytools as tool
+
 #for gu to g1 algorithm
 def createNextEi1(oldEi,i):
     newEi = []
@@ -50,7 +56,7 @@ def createNextEi2(oldEi,i):
 
 def main():
     #oldEi = combinations(['e1','e2','e3','e4'],2)
-    oldEi = [('e1','e2'),('e1','e3'),('e1','e4'),('e2','e3'),('e2','e4')]
+    #oldEi = [('e1','e2'),('e1','e3'),('e1','e4'),('e2','e3'),('e2','e4')]
     print list(createNextEi2(oldEi,2)) #should contain [(e1,e2,e3),]
 
 if __name__ == "__main__":

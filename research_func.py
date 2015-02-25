@@ -143,8 +143,8 @@ def findminG1(g,gu,rate):
                 smallestgraph = graph
         return (smallestgraph,tool.g2num(smallestgraph))
 
-#gu to g1 algorithm
-def gutog1(h,max_u):
+#my exploding version of gu to g1 algorithm
+def explodinggutog1(h,max_u):
     G_test = copy.deepcopy(h)
     for edge in tool.edgelist(h):
         tool.delanedge(G_test,edge)
@@ -204,6 +204,8 @@ def gutog1(h,max_u):
                         tool.delanedge(G_test,edge)
                 if len(tool.edgelist(testgu))== tool.numofvertices(h)**2:
                     print "testgu has hit superclique"
+                    #should I force it to move to the next u?
+                    #testing to find out
             if not edgetuplesleft:  
                 break
             else:
@@ -213,6 +215,18 @@ def gutog1(h,max_u):
         if u == max_u:
             print "no G found given max_u"
             break
+
+#strawman brute force gu to g1 algorithm
+#for comparison
+def strawmangutog1(h,max_u):
+    g1_list = []
+    for u in range(1,max_u):
+        g1_list.append(tool.backtrack_more(h, u))
+    print g1_list
+    return g1_list
+
+def hopefulgutog1(h):
+    print "STILL IN THE WORKS"
         
 def main():
 
@@ -355,9 +369,21 @@ def main():
     #findAllGraphs(g, g3, 2)
 
 
+    #TESTING strawman GU to G1 ALG
+    #random
+    #H = {
+    #'1': {'1': set([(0, 1)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}, 
+    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)])}, 
+    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])}, 
+    #'4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
+    #}
+    #max_u=5
+    #strawmangutog1(H,max_u)
+
+    #TESTING hopeful GU to G1 ALG
 
 
-    #TESTING GU TO G1 ALG
+    #TESTING exploding GU TO G1 ALG
 
     #random
     #H = {
@@ -366,29 +392,37 @@ def main():
     #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])}, 
     #'4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
     #}
-    #max_u=2
-    #(G,u) = gutog1(H,max_u) #find a G such that H = G^2 
+    #max_u=5
+    #(G,u) = explodinggutog1(H,max_u) #find a G such that H = G^2 
     #print "graph is: ",G," and u is: ",u
+    #print "in hash notation, G is ",tool.g2num(G)
     #does this G satisfy G^2=H?
     #test = tool.undersample(G,1)
     #if H == test:
     #    print "yes"
 
-
-    H= {
-    '1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
-    }
-    max_u=2
-    (G,u) = gutog1(H,max_u) #find a G such that H = G^2 
-    print "graph is: ",G," and u is: ",u
+    #H= {
+    #'1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
+    #}
+    #max_u=2
+    #(G,u) = explodinggutog1(H,max_u) #find a G such that H = G^2 
+    #print "graph is: ",G," and u is: ",u
+    #here is the G that is returned
+    #G = {
+    #'1': {'4': set([(0, 1)])}, 
+    #'3': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '5': set([(0, 1)]), '4': set([(0, 1)])}, 
+    #'2': {'3': set([(0, 1)])}, 
+    #'5': {'1': set([(0, 1)]), '2': set([(0, 1)])}, 
+    #'4': {'2': set([(0, 1)]), '5': set([(0, 1)]), '4': set([(0, 1)])}
+    #}
     #does this G satisfy G^2=H?
-    test = tool.undersample(G,1)
-    if H == test:
-        print "yes"
+    #test = tool.undersample(G,1)
+    #if H == test:
+    #    print "yes"
 
 
 
