@@ -9,6 +9,12 @@ sys.path.append(os.path.expanduser(TOOLSPATH))
 
 import mytools as tool
 
+
+
+
+
+
+
 #returns all the supergraphs of g that are in the same equivalence class
 #as g with respect to gu and the rate
 #BFS
@@ -68,6 +74,12 @@ def supergraphs_in_eq(g, gu, rate):
     #s1 contains string graph notation
     print (s,s1)
     return (s,s1)
+
+
+
+
+
+
 
 #returns all the subgraphs of g that are in the same equivalence class
 #as g with respect to gu and the rate
@@ -143,6 +155,10 @@ def findminG1(g,gu,rate):
                 smallestgraph = graph
         return (smallestgraph,tool.g2num(smallestgraph))
 
+
+
+
+
 #my exploding version of gu to g1 algorithm
 def explodinggutog1(h,max_u):
     G_test = copy.deepcopy(h)
@@ -216,6 +232,9 @@ def explodinggutog1(h,max_u):
             print "no G found given max_u"
             break
 
+
+
+
 #strawman brute force gu to g1 algorithm
 #for comparison
 def strawmangutog1(h,max_u):
@@ -225,9 +244,32 @@ def strawmangutog1(h,max_u):
     print g1_list
     return g1_list
 
-def hopefulgutog1(h):
-    print "STILL IN THE WORKS"
-        
+
+
+#helper function for hopefulgutog1
+def search(G,H,EL):
+    if not EL:
+        #execute this statement if EL is empty
+        return NONE
+    for edge in EL:
+        tool.addanedge(G,edge)
+        if tool.checkconflict(H,G):
+            #if there exists a conflict
+            El.
+
+
+
+
+def hopefulgutog1(H):
+        G = tool.cloneempty(H)
+        EL = tool.edgelist(tool.superclique(H))
+
+
+
+
+
+
+
 def main():
 
     #TESTING SUPERGRAPH
@@ -423,6 +465,9 @@ def main():
     #test = tool.undersample(G,1)
     #if H == test:
     #    print "yes"
+
+    
+    
 
 
 

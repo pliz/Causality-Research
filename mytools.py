@@ -3,6 +3,44 @@ from itertools import permutations,combinations
 from functools import wraps
 import random
 
+
+#if sublist is contained within superlist, return true
+def contained(sublist, superlist):
+    temp = superlist[:]
+    try:
+        for v in sublist:
+            temp.remove(v)
+        return True
+    except ValueError:
+        return False
+
+#it is assumed that G_test already has an edge added
+#H and G_test should have the same number of vertices
+#returns true if there is a conflict
+#returns false if there is not a conflict
+def checkconflict(H,G_test):
+    conflict = True
+    Hedges = edgelist(H)
+    allundersamples = all_undersamples(G_test)
+    for graph in allundersamples:
+        gedges = edgelist(graph)
+        if contained(gedges,Hedges):
+            conflict = False
+            break
+    return conflict
+
+
+#helper function for checkconflict
+def all_undersamples(G_star,steps=5):
+    glist = [G_star]
+    while True:
+        g = increment_u(G_star, glist[-1])
+        if ecj.isSclique(g): return glist # superclique convergence
+        # this will (may be) capture DAGs and oscillations
+        if g in glist: return glist
+        glist.append(g)
+    return glist
+
 #helper function for backtrack_more
 def memo(func):
     cache = {}                        # Stored subproblem solutions
