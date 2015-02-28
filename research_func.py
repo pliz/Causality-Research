@@ -247,23 +247,37 @@ def strawmangutog1(h,max_u):
 
 
 #helper function for hopefulgutog1
-def search(G,H,EL):
-    if not EL:
+def search(G,H,EL,S):
+    if EL:
+        #execute this statement if EL is not empty
+        newEl = []
+        for edge in EL:
+            tool.addanedge(G,edge)
+            if not tool.checkconflict(H,G):
+                #if there doesn't exist a conflict
+                #ie adding the edge makes one of the undersamples a subset of H
+                newEl.append(edge)
+            tool.delanedge(G,edge)
+        for edge in newEl:
+            tool.addanedge(G,edge)
+            if checkequality(H,G):
+                #if there is equality
+                #ie adding the edge makes one of the undersamples = H
+                S.add(G)
+            return S
+            S.add(search(G,H,newEL,S))
+    else:
         #execute this statement if EL is empty
-        return NONE
-    for edge in EL:
-        tool.addanedge(G,edge)
-        if tool.checkconflict(H,G):
-            #if there exists a conflict
-            El.
-
-
-
-
+        return None
+            
+#hopeful gu to g1 algorithm
+#adding edge by edge depth first search   
 def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(H))
-
+        S = set()
+        print S
+        return search(G,H,EL,S)
 
 
 
@@ -443,13 +457,13 @@ def main():
     #if H == test:
     #    print "yes"
 
-    #H= {
-    #'1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    #'5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    #'4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
-    #}
+    H= {
+    '1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
+    }
     #max_u=2
     #(G,u) = explodinggutog1(H,max_u) #find a G such that H = G^2 
     #print "graph is: ",G," and u is: ",u
@@ -467,8 +481,7 @@ def main():
     #    print "yes"
 
     
-    
-
+    hopefulgutog1(H):
 
 
 if __name__ == "__main__":

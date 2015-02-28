@@ -4,6 +4,9 @@ from functools import wraps
 import random
 
 
+
+
+#helper function for checkconflict
 #if sublist is contained within superlist, return true
 def contained(sublist, superlist):
     temp = superlist[:]
@@ -28,6 +31,18 @@ def checkconflict(H,G_test):
             conflict = False
             break
     return conflict
+
+#it is assumed that G_test already has an edge added
+#H and G_test should have the same number of vertices
+#returns true if there is equality
+#returns false if there is not equality
+def checkequality(H,G_test):
+    equality = False
+    allundersamples = all_undersamples(G_test)
+    for graph in allundersamples:
+        if graph == H:
+            equality = True
+    return equality
 
 
 #helper function for checkconflict
@@ -335,6 +350,7 @@ def maskanedge(g,e):
 
 #Slightly different from sergey's addanedge
 #adds an edge e to graph g
+#g itself is changed
 #e[0] is the starting vertex
 #e[1] is the ending vertex
 def addanedge(g,e):
