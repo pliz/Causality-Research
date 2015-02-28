@@ -260,7 +260,7 @@ def search(G,H,EL,S):
             tool.delanedge(G,edge)
         for edge in newEl:
             tool.addanedge(G,edge)
-            if checkequality(H,G):
+            if tool.checkequality(H,G):
                 #if there is equality
                 #ie adding the edge makes one of the undersamples = H
                 S.add(G)
@@ -274,7 +274,7 @@ def search(G,H,EL,S):
 #adding edge by edge depth first search   
 def hopefulgutog1(H):
         G = tool.cloneempty(H)
-        EL = tool.edgelist(tool.superclique(H))
+        EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
         S = set()
         print S
         return search(G,H,EL,S)
@@ -481,7 +481,7 @@ def main():
     #    print "yes"
 
     
-    hopefulgutog1(H):
+    hopefulgutog1(H)
 
 
 if __name__ == "__main__":

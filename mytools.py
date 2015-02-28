@@ -50,7 +50,7 @@ def all_undersamples(G_star,steps=5):
     glist = [G_star]
     while True:
         g = increment_u(G_star, glist[-1])
-        if ecj.isSclique(g): return glist # superclique convergence
+        if isSclique(g): return glist # superclique convergence
         # this will (may be) capture DAGs and oscillations
         if g in glist: return glist
         glist.append(g)
