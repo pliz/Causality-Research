@@ -248,7 +248,7 @@ def strawmangutog1(h,max_u):
 
 #helper function for hopefulgutog1
 #returns G1s
-def search(G,H,EL,S):
+def search(G,H,EL,S,lastedgeadded):
     print "----------------------------"
     newEl = []
     if EL:  #execute this statement if EL is not empty
@@ -264,16 +264,20 @@ def search(G,H,EL,S):
         print "G: ",tool.edgelist(G)
         print "length of G: ",len(tool.edgelist(G))
         print "the edges that do not produce conflict for G: ",newEl
+        #newEl is the list of children
         
         #problem:
-        #if newEl is empty, we should remove the previously added edge
-        #and then add a different edge from the previously nonempty newEl
-        #the 2nd part is fulfilled...we just need to remove the edge
+        #so we have taken care of the deleting the last edge added if newEl is empty
+        #what is every single edge in newEl leads to a failure? we need to delete the last edge added also
+
+        if newEl == []:
+            print "HEY"
+            tool.delanedge(G,lastedgeadded)
 
         for edge in newEl:
             tool.addanedge(G,edge)
-            edgetoaddnext = edge
-            print "edge to add next: ",edgetoaddnext
+            lastedgeadded = edge
+            print "edge to add next: ",lastedgeadded
             if tool.checkequality(H,G):
                 #if there is equality
                 #ie adding the edge makes one of the undersamples = H
@@ -286,7 +290,7 @@ def search(G,H,EL,S):
             for gedge in Gedges:
                 if gedge in anotherEl:
                     anotherEl.remove(gedge)
-            S.add(search(G,H,anotherEl,S))
+            S.add(search(G,H,anotherEl,S,lastedgeadded))
     else:  #execute this statement if EL is empty       
         return None
    
@@ -298,7 +302,7 @@ def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
         S = set()
-        return search(G,H,EL,S)
+        return search(G,H,EL,S,('1','1'))
 
 
 
