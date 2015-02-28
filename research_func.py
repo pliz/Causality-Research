@@ -247,10 +247,11 @@ def strawmangutog1(h,max_u):
 
 
 #helper function for hopefulgutog1
+#returns G1s
 def search(G,H,EL,S):
-    if EL:
-        #execute this statement if EL is not empty
-        newEl = []
+    print "----------------------------"
+    newEl = []
+    if EL:  #execute this statement if EL is not empty
         for edge in EL:
             tool.addanedge(G,edge)
             if not tool.checkconflict(H,G):
@@ -258,17 +259,38 @@ def search(G,H,EL,S):
                 #ie adding the edge makes one of the undersamples a subset of H
                 newEl.append(edge)
             tool.delanedge(G,edge)
+
+        #we have now constructed newEl
+        print "G: ",tool.edgelist(G)
+        print "length of G: ",len(tool.edgelist(G))
+        print "the edges that do not produce conflict for G: ",newEl
+        
+        #problem:
+        #if newEl is empty, we should remove the previously added edge
+        #and then add a different edge from the previously nonempty newEl
+        #the 2nd part is fulfilled...we just need to remove the edge
+
         for edge in newEl:
             tool.addanedge(G,edge)
+            edgetoaddnext = edge
+            print "edge to add next: ",edgetoaddnext
             if tool.checkequality(H,G):
                 #if there is equality
                 #ie adding the edge makes one of the undersamples = H
+                print "G1 found: ",G
                 S.add(G)
-            return S
-            S.add(search(G,H,newEL,S))
-    else:
-        #execute this statement if EL is empty
+                return S
+            Gedges = tool.edgelist(G)
+            #anotherEl consists of all the edges that Gedges does not have
+            anotherEl = tool.edgelist(tool.superclique(tool.numofvertices(H)))
+            for gedge in Gedges:
+                if gedge in anotherEl:
+                    anotherEl.remove(gedge)
+            S.add(search(G,H,anotherEl,S))
+    else:  #execute this statement if EL is empty       
         return None
+   
+
             
 #hopeful gu to g1 algorithm
 #adding edge by edge depth first search   
@@ -276,7 +298,6 @@ def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
         S = set()
-        print S
         return search(G,H,EL,S)
 
 
@@ -457,13 +478,13 @@ def main():
     #if H == test:
     #    print "yes"
 
-    H= {
-    '1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
-    }
+    #H= {
+    #'1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    #'4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
+    #}
     #max_u=2
     #(G,u) = explodinggutog1(H,max_u) #find a G such that H = G^2 
     #print "graph is: ",G," and u is: ",u
@@ -480,7 +501,13 @@ def main():
     #if H == test:
     #    print "yes"
 
-    
+    H= {
+    '1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
+    '4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
+    }
     hopefulgutog1(H)
 
 
