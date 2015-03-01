@@ -246,9 +246,23 @@ def strawmangutog1(h,max_u):
 
 
 
+def initializeroot(G,H,EL):
+    newEl = []
+    if EL:  #execute this statement if EL is not empty
+        for edge in EL:
+            tool.addanedge(G,edge)
+            if not tool.checkconflict(H,G):
+                #if there doesn't exist a conflict
+                #ie adding the edge makes one of the undersamples a subset of H
+                newEl.append(edge)
+            tool.delanedge(G,edge)
+    return newEl
+
+
+
 #helper function for hopefulgutog1
 #returns G1s
-def search(G,H,EL,S):
+def search(G,H,EL,S,previousnewEl,parentnewEl,latestaddededge):
     print "----------------------------"
     newEl = []
     if EL:  #execute this statement if EL is not empty
@@ -264,22 +278,38 @@ def search(G,H,EL,S):
 
         #delete these print statements at some point
         print "G: ",tool.edgelist(G)
-        print "length of G: ",len(tool.edgelist(G))
-        print "the edges that do not produce conflict for G: ",newEl
+        print "parent new El: ",parentnewEl
+        print "parent new El length: ",len(parentnewEl)
+        print "current new El: ",newEl
+        print "current new El length: ",len(newEl)
         
         
+        #parentnewEl is the newEL of the most recent parent
+        if previousnewEl:   #execute this statement if previous newEl is not empty
+            if newEl:   #execute this statement if newEl is not empty
+                parentnewEl = newEl 
+            else:       #newEl is empty
+                parentnewEl = previousnewEl
+
+
+
         #so we have taken care of the deleting the last edge added if newEl is empty
         #what if every single edge in newEl leads to a failure? we need to delete the last edge added also
-        
+
+        #tool.edgelist(G)[-1] does not delete the last edge added bc python orders stuff in its own way
         if tool.edgelist(G): #execute this statement if edgelist of G is not empty
             if not newEl: #execute this statement if newEl is empty
-                tool.delanedge(G,tool.edgelist(G)[-1])
+                tool.delanedge(G,latestaddededge)
+                if parentnewEl[-1] == latestaddededge:
+                #if every child has empty newEls AND every element of the newEL belonging to the parent is visited
+                    if tool.edgelist(G): #execute this statement if edgelist of G is not empty
+                        tool.delanedge(G,tool.edgelist(G)[-1])
                 
-                #if 
-                    #if tool.edgelist(G): #execute this statement if edgelist of G is not empty
-                        #tool.delanedge(G,tool.edgelist(G)[-1])
 
-     
+
+
+
+        previousnewEl = newEl
         for edge in newEl:
             tool.addanedge(G,edge)
             if tool.checkequality(H,G):
@@ -288,14 +318,17 @@ def search(G,H,EL,S):
                 print "G1 found: ",G
                 S.add(G)
                 return S
+
             Gedges = tool.edgelist(G)
             #anotherEl consists of all the edges that Gedges does not have
             anotherEl = tool.edgelist(tool.superclique(tool.numofvertices(H)))
             for gedge in Gedges:
                 if gedge in anotherEl:
                     anotherEl.remove(gedge)
-            S.add(search(G,H,anotherEl,S))
-    else:  #execute this statement if EL is empty       
+            latestaddededge = edge
+            S.add(search(G,H,anotherEl,S,previousnewEl,parentnewEl,latestaddededge))
+
+    else:  #execute this statement if EL is empty(no more edges can be added because we have hit the superclique)       
         return None
    
 
@@ -306,7 +339,7 @@ def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
         S = set()
-        return search(G,H,EL,S)
+        print search(G,H,EL,S,[],initializeroot(G,H,EL),('0','0'))
 
 
 
@@ -510,11 +543,9 @@ def main():
     #    print "yes"
 
     H= {
-    '1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])}, 
-    '4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
+    '1': {'2': set([(1, 0)])},  
+    '2': {'1': set([(1, 0)]), '2': set([(1, 0)])},
+    '3': {'1': set([(1, 0)]), '2': set([(1, 0)])}
     }
     hopefulgutog1(H)
 
