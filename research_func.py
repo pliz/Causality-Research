@@ -248,7 +248,7 @@ def strawmangutog1(h,max_u):
 
 #helper function for hopefulgutog1
 #returns G1s
-def search(G,H,EL,S,lastedgeadded):
+def search(G,H,EL,S):
     print "----------------------------"
     newEl = []
     if EL:  #execute this statement if EL is not empty
@@ -261,23 +261,27 @@ def search(G,H,EL,S,lastedgeadded):
             tool.delanedge(G,edge)
 
         #we have now constructed newEl
+
+        #delete these print statements at some point
         print "G: ",tool.edgelist(G)
         print "length of G: ",len(tool.edgelist(G))
         print "the edges that do not produce conflict for G: ",newEl
-        #newEl is the list of children
         
-        #problem:
+        
         #so we have taken care of the deleting the last edge added if newEl is empty
-        #what is every single edge in newEl leads to a failure? we need to delete the last edge added also
+        #what if every single edge in newEl leads to a failure? we need to delete the last edge added also
+        
+        if tool.edgelist(G): #execute this statement if edgelist of G is not empty
+            if not newEl: #execute this statement if newEl is empty
+                tool.delanedge(G,tool.edgelist(G)[-1])
+                
+                #if 
+                    #if tool.edgelist(G): #execute this statement if edgelist of G is not empty
+                        #tool.delanedge(G,tool.edgelist(G)[-1])
 
-        if newEl == []:
-            print "HEY"
-            tool.delanedge(G,lastedgeadded)
-
+     
         for edge in newEl:
             tool.addanedge(G,edge)
-            lastedgeadded = edge
-            print "edge to add next: ",lastedgeadded
             if tool.checkequality(H,G):
                 #if there is equality
                 #ie adding the edge makes one of the undersamples = H
@@ -290,7 +294,7 @@ def search(G,H,EL,S,lastedgeadded):
             for gedge in Gedges:
                 if gedge in anotherEl:
                     anotherEl.remove(gedge)
-            S.add(search(G,H,anotherEl,S,lastedgeadded))
+            S.add(search(G,H,anotherEl,S))
     else:  #execute this statement if EL is empty       
         return None
    
@@ -302,7 +306,7 @@ def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
         S = set()
-        return search(G,H,EL,S,('1','1'))
+        return search(G,H,EL,S)
 
 
 
