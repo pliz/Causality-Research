@@ -261,21 +261,14 @@ def search(G,H,EL,S,newEls,edgesinG):
                 #ie adding the edge makes one of the undersamples a subset of H
                 newEl.append(edge)
             tool.delanedge(G,edge)
-
         #we have now constructed newEl
-
         newEl1 = copy.deepcopy(newEl) 
 
-        #delete these print statements at some point
         print "G: ",tool.edgelist(G)
         print "current new El: ",newEl
 
-        
-
-
         if newEl: #execute if newEl is not empty
             newEls.append(newEl)
-
         if tool.edgelist(G):
             if not newEl:
                 tool.delanedge(G,edgesinG[-1])
@@ -288,10 +281,6 @@ def search(G,H,EL,S,newEls,edgesinG):
                 edgesinG.remove(edgesinG[-1])
                 newEls.remove(newEls[-1])
                 newEls[-1].remove(newEls[-1][-1])
-                
-
-
-
         
         for edge in newEl1:
             tool.addanedge(G,edge)
@@ -300,7 +289,8 @@ def search(G,H,EL,S,newEls,edgesinG):
                 #if there is equality
                 #ie adding the edge makes one of the undersamples = H
                 print "G1 found: ",G
-                S.append(G)
+                if G not in S:
+                    S.append(G)
                 return S
 
             Gedges = tool.edgelist(G)
@@ -323,7 +313,8 @@ def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
         S = []
-        print search(G,H,EL,S,[],[])
+        return search(G,H,EL,S,[],[])
+        
 
 
 
@@ -548,6 +539,12 @@ def main():
 
 
 
+
+
+
+
+
+
     #TESTING HOPEFUL GU to G1 Algorithm
 
     H = {
@@ -557,20 +554,18 @@ def main():
     '4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
     }
 
-    #hopefulgutog1(H) 
-    G = {
-    '1': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)])}, 
-    '3': {'1': set([(0, 1)]), '3': set([(0, 1)])}, 
-    '2': {'4': set([(0, 1)])}, 
-    '4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
-    }
+    hopefulgutog1(H) 
+    #G = {
+    #'1': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)])}, 
+    #'3': {'1': set([(0, 1)]), '3': set([(0, 1)])}, 
+    #'2': {'4': set([(0, 1)])}, 
+    #'4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
+    #}
 
     #does this G satisfy G^2=H?
-    test = tool.undersample(G,1)
-    if H == test:
-        print "yes"
-
-
+    #test = tool.undersample(G,1)
+    #if H == test:
+    #    print "yes"
 
     #H= {
     #'1': {'2': set([(1, 0)])},  
