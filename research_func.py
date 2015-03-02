@@ -246,24 +246,12 @@ def strawmangutog1(h,max_u):
 
 
 
-def initializeroot(G,H,EL):
-    newEl = []
-    if EL:  #execute this statement if EL is not empty
-        for edge in EL:
-            tool.addanedge(G,edge)
-            if not tool.checkconflict(H,G):
-                #if there doesn't exist a conflict
-                #ie adding the edge makes one of the undersamples a subset of H
-                newEl.append(edge)
-            tool.delanedge(G,edge)
-    return newEl
 
 
 
 #helper function for hopefulgutog1
 #returns G1s
-def search(G,H,EL,S,previousnewEl,parentnewEl,latestaddededge):
-    print "----------------------------"
+def search(G,H,EL,S,newEls,edgesinG):
     newEl = []
     if EL:  #execute this statement if EL is not empty
         for edge in EL:
@@ -276,47 +264,43 @@ def search(G,H,EL,S,previousnewEl,parentnewEl,latestaddededge):
 
         #we have now constructed newEl
 
+        newEl1 = copy.deepcopy(newEl) 
+
         #delete these print statements at some point
         print "G: ",tool.edgelist(G)
-        print "parent new El: ",parentnewEl
-        print "parent new El length: ",len(parentnewEl)
         print "current new El: ",newEl
-        print "current new El length: ",len(newEl)
+
         
-        
-        #parentnewEl is the newEL of the most recent parent
-        if previousnewEl:   #execute this statement if previous newEl is not empty
-            if newEl:   #execute this statement if newEl is not empty
-                parentnewEl = newEl 
-            else:       #newEl is empty
-                parentnewEl = previousnewEl
 
 
+        if newEl: #execute if newEl is not empty
+            newEls.append(newEl)
 
-        #so we have taken care of the deleting the last edge added if newEl is empty
-        #what if every single edge in newEl leads to a failure? we need to delete the last edge added also
-
-        #tool.edgelist(G)[-1] does not delete the last edge added bc python orders stuff in its own way
-        if tool.edgelist(G): #execute this statement if edgelist of G is not empty
-            if not newEl: #execute this statement if newEl is empty
-                tool.delanedge(G,latestaddededge)
-                if parentnewEl[-1] == latestaddededge:
-                #if every child has empty newEls AND every element of the newEL belonging to the parent is visited
-                    if tool.edgelist(G): #execute this statement if edgelist of G is not empty
-                        tool.delanedge(G,tool.edgelist(G)[-1])
+        if tool.edgelist(G):
+            if not newEl:
+                tool.delanedge(G,edgesinG[-1])
+                edgesinG.remove(edgesinG[-1])
+                newEls[-1].remove(newEls[-1][-1])
+            while not newEls[-1]:
+                if newEls == [[]]:
+                    return None
+                tool.delanedge(G,edgesinG[-1])
+                edgesinG.remove(edgesinG[-1])
+                newEls.remove(newEls[-1])
+                newEls[-1].remove(newEls[-1][-1])
                 
 
 
 
-
-        previousnewEl = newEl
-        for edge in newEl:
+        
+        for edge in newEl1:
             tool.addanedge(G,edge)
+            edgesinG.append(edge)
             if tool.checkequality(H,G):
                 #if there is equality
                 #ie adding the edge makes one of the undersamples = H
                 print "G1 found: ",G
-                S.add(G)
+                S.append(G)
                 return S
 
             Gedges = tool.edgelist(G)
@@ -325,8 +309,8 @@ def search(G,H,EL,S,previousnewEl,parentnewEl,latestaddededge):
             for gedge in Gedges:
                 if gedge in anotherEl:
                     anotherEl.remove(gedge)
-            latestaddededge = edge
-            S.add(search(G,H,anotherEl,S,previousnewEl,parentnewEl,latestaddededge))
+            
+            S.append(search(G,H,anotherEl,S,newEls,edgesinG))
 
     else:  #execute this statement if EL is empty(no more edges can be added because we have hit the superclique)       
         return None
@@ -338,8 +322,8 @@ def search(G,H,EL,S,previousnewEl,parentnewEl,latestaddededge):
 def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
-        S = set()
-        print search(G,H,EL,S,[],initializeroot(G,H,EL),('0','0'))
+        S = []
+        print search(G,H,EL,S,[],[])
 
 
 
@@ -487,6 +471,15 @@ def main():
     #findAllGraphs(g, g3, 2)
 
 
+
+
+
+
+
+
+
+
+
     #TESTING strawman GU to G1 ALG
     #random
     #H = {
@@ -498,7 +491,16 @@ def main():
     #max_u=5
     #strawmangutog1(H,max_u)
 
-    #TESTING hopeful GU to G1 ALG
+
+
+
+
+
+
+
+
+
+
 
 
     #TESTING exploding GU TO G1 ALG
@@ -542,12 +544,40 @@ def main():
     #if H == test:
     #    print "yes"
 
-    H= {
-    '1': {'2': set([(1, 0)])},  
-    '2': {'1': set([(1, 0)]), '2': set([(1, 0)])},
-    '3': {'1': set([(1, 0)]), '2': set([(1, 0)])}
+
+
+
+
+    #TESTING HOPEFUL GU to G1 Algorithm
+
+    H = {
+    '1': {'1': set([(0, 1)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}, 
+    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)])}, 
+    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])}, 
+    '4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
     }
-    hopefulgutog1(H)
+
+    #hopefulgutog1(H) 
+    G = {
+    '1': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)])}, 
+    '3': {'1': set([(0, 1)]), '3': set([(0, 1)])}, 
+    '2': {'4': set([(0, 1)])}, 
+    '4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
+    }
+
+    #does this G satisfy G^2=H?
+    test = tool.undersample(G,1)
+    if H == test:
+        print "yes"
+
+
+
+    #H= {
+    #'1': {'2': set([(1, 0)])},  
+    #'2': {'1': set([(1, 0)]), '2': set([(1, 0)])},
+    #'3': {'1': set([(1, 0)]), '2': set([(1, 0)])}
+    #}
+    #hopefulgutog1(H) #can't find any
 
 
 if __name__ == "__main__":
