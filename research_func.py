@@ -2,6 +2,7 @@
 #Gu to G1 algorithm
 from itertools import combinations
 import copy
+import time
 
 import sys,os
 TOOLSPATH='~/Users/cynthia/Desktop/Causality/Causality-Research/mytools.py'
@@ -264,8 +265,8 @@ def search(G,H,EL,S,newEls,edgesinG):
         #we have now constructed newEl
         newEl1 = copy.deepcopy(newEl) 
 
-        print "G: ",tool.edgelist(G)
-        print "current new El: ",newEl
+        #print "G: ",tool.edgelist(G)
+        #print "current new El: ",newEl
 
         if newEl: #execute if newEl is not empty
             newEls.append(newEl)
@@ -288,10 +289,10 @@ def search(G,H,EL,S,newEls,edgesinG):
             if tool.checkequality(H,G):
                 #if there is equality
                 #ie adding the edge makes one of the undersamples = H
-                print "G1 found: ",G
-                if G not in S:
-                    S.append(G)
+                #print "G1 found: ",G
+                S.add(tool.gsig(G))
                 return S
+                
 
             Gedges = tool.edgelist(G)
             #anotherEl consists of all the edges that Gedges does not have
@@ -300,7 +301,7 @@ def search(G,H,EL,S,newEls,edgesinG):
                 if gedge in anotherEl:
                     anotherEl.remove(gedge)
             
-            S.append(search(G,H,anotherEl,S,newEls,edgesinG))
+            search(G,H,anotherEl,S,newEls,edgesinG)
 
     else:  #execute this statement if EL is empty(no more edges can be added because we have hit the superclique)       
         return None
@@ -312,8 +313,9 @@ def search(G,H,EL,S,newEls,edgesinG):
 def hopefulgutog1(H):
         G = tool.cloneempty(H)
         EL = tool.edgelist(tool.superclique(tool.numofvertices(H)))
-        S = []
+        S = set()
         return search(G,H,EL,S,[],[])
+        
         
 
 
@@ -554,10 +556,22 @@ def main():
     '4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
     }
 
-    hopefulgutog1(H) 
+    t0 = time.time()
+    print hopefulgutog1(H) 
+    t1 = time.time()
+    total = t1-t0
+    print "time in seconds: ", total
+
+    #two G's are found
     #G = {
     #'1': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)])}, 
     #'3': {'1': set([(0, 1)]), '3': set([(0, 1)])}, 
+    #'2': {'4': set([(0, 1)])}, 
+    #'4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
+    #}
+    #G = {
+    #'1': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)])}, 
+    #'3': {'1': set([(0, 1)])}, 
     #'2': {'4': set([(0, 1)])}, 
     #'4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
     #}
