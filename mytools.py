@@ -17,32 +17,40 @@ def contained(sublist, superlist):
     except ValueError:
         return False
 
+def isedgesubset(g2star,g2):
+    '''
+    check if g2star edges are a subset of those of g2
+    '''
+    for n in g2star:
+        for h in g2star[n]:
+            if h in g2[n]:
+                #if not (0,1) in g2[n][h]:
+                if not g2star[n][h].issubset(g2[n][h]):
+                    return False
+            else:
+                    return False
+    return True
+
 #it is assumed that G_test already has an edge added
 #H and G_test should have the same number of vertices
 #returns true if there is a conflict
 #returns false if there is not a conflict
 def checkconflict(H,G_test):
-    conflict = True
-    Hedges = edgelist(H)
     allundersamples = all_undersamples(G_test)
     for graph in allundersamples:
-        gedges = edgelist(graph)
-        if contained(gedges,Hedges):
-            conflict = False
-            break
-    return conflict
+        if isedgesubset(graph,H): return False
+    return True
+
 
 #it is assumed that G_test already has an edge added
 #H and G_test should have the same number of vertices
 #returns true if there is equality
 #returns false if there is not equality
 def checkequality(H,G_test):
-    equality = False
     allundersamples = all_undersamples(G_test)
     for graph in allundersamples:
-        if graph == H:
-            equality = True
-    return equality
+        if graph == H: return True
+    return False
 
 
 #helper function for checkconflict
@@ -381,3 +389,20 @@ def graph2str(G):
         for w in G[v]:
             A[n*(int(v)-1)+int(w)-1] = d[tuple(G[v][w])]
     return ''.join(A)
+
+def superclique(n):
+    g = {}
+    for i in range(n):
+        g[str(i+1)] = {str(j+1):set([(0,1),(2,0)])
+                       for j in range(n) if j!=i}
+        g[str(i+1)][str(i+1)] = set([(0,1)])
+    return g
+
+def complement(g):
+    n = len(g)
+    sq = superclique(n)
+    for v in g:
+        for w in g[v]:
+            sq[v][w].difference_update(g[v][w])
+            if not sq[v][w]: sq[v].pop(w)
+    return sq
