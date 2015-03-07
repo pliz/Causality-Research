@@ -354,24 +354,20 @@ def complement(g):
 
 #helper function for addanedge
 def maskanedge(g,e): 
-    return [e[1] in g[e[0]]]
+    return [e[1] in g[e[0]v]]
 
 #Slightly different from sergey's addanedge
 #adds an edge e to graph g
 #g itself is changed
 #e[0] is the starting vertex
 #e[1] is the ending vertex
-def addanedge(g,e):
-    mask = maskanedge(g,e)
-    g[e[0]][e[1]] =  set([(0,1)])
-    return mask
+def addanedge(g,e): g[e[0]][e[1]] =  set([(0,1)])
 
 #Slightly different from sergey's delanedge
 #delete edge e in graph g
 #e[0] is the starting vertex
 #e[1] is the ending vertex
-def delanedge(g,e):
-    g[e[0]].pop(e[1], None)
+def delanedge(g,e): g[e[0]].pop(e[1], None)
 
 #returns the number of vertices of graph g
 def numofvertices(g):
