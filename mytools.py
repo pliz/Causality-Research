@@ -354,7 +354,7 @@ def complement(g):
 
 #helper function for addanedge
 def maskanedge(g,e): 
-    return [e[1] in g[e[0]v]]
+    return [e[1] in g[e[0]]]
 
 #Slightly different from sergey's addanedge
 #adds an edge e to graph g
