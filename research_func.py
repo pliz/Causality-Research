@@ -360,7 +360,7 @@ def memo(func):
     cache = {}                        # Stored subproblem solutions
     @wraps(func)                      # Make wrap look like func
     def wrap(*args):                  # The memoized wrapper
-        s = tool.gsig(args[0])# Signature: g and edges        
+        s = tool.gsig(args[0])        # Signature: just the g
         #s = tool.signature(args[0],args[2])# Signature: g and edges
         if s not in cache:            # Not already computed?
             cache[s] = func(*args)    # Compute & cache the solution
@@ -426,7 +426,8 @@ def eqclass(H):
 
 
 def main():
-    g = bfu.ringmore(4,2); H = bfu.undersample(g,1);
+    g = bfu.ringmore(4,2);
+    H = bfu.undersample(g,1);
     ss = eqclass(H)
     print ss
 
