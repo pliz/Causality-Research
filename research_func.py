@@ -409,17 +409,11 @@ def eqclass(H):
 
             for i in range(n):
                 tool.addanedge(g,nedges[i])
-                if tool.checkequality(H,g): s.add(tool.gsig(g))
-                addedges(g,H,nedges[:i]+nedges[i+1:])
+                if tool.checkequality(H,g): return tool.gsig(g)
+                s.add(addedges(g,H,nedges[:i]+nedges[i+1:]))
                 tool.delanedge(g,nedges[i])
-
+                
     edges = tool.edgelist(tool.complement(g))
-    d = {}
-    c = 0
-    for e in edges:
-        d[e] = c
-        c += 1
-    c = 0
     addedges(g,H,edges)
     return s
 
