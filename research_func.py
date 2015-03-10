@@ -4,6 +4,16 @@ from itertools import combinations
 from functools import wraps
 import copy
 import time
+import sys,os
+TOOLSPATH='~/soft/src/dev/craft/gunfolds/tools/'
+sys.path.append(os.path.expanduser(TOOLSPATH))
+
+import bfutils as bfu
+import graphkit as gk
+import traversal as trv
+import linear_model as lm
+import numpy as np
+import pc
 
 import sys,os
 TOOLSPATH='~/Users/cynthia/Desktop/Causality/Causality-Research/mytools.py'
@@ -350,7 +360,8 @@ def memo(func):
     cache = {}                        # Stored subproblem solutions
     @wraps(func)                      # Make wrap look like func
     def wrap(*args):                  # The memoized wrapper
-        s = tool.signature(args[0],args[2])# Signature: g and edges
+        s = tool.gsig(args[0])# Signature: g and edges        
+        #s = tool.signature(args[0],args[2])# Signature: g and edges
         if s not in cache:            # Not already computed?
             cache[s] = func(*args)    # Compute & cache the solution
         return cache[s]               # Return the cached solution
@@ -364,29 +375,50 @@ def eqclass(H):
     '''
     g = {n:{} for n in H}
     s = set()
+
+    def prune_conflicts(H, g, elist):
+        """checks if adding an edge from the list to graph g causes a
+        conflict with respect to H and if it does removes the edge
+        from the list
+
+        Arguments:
+        - `H`: the undersampled graph
+        - `g`: a graph under construction
+        - `elist`: list of edges to check
+        """
+        masks  = []
+        for e in elist:
+            tool.addanedge(g,e)
+            if tool.checkconflict(H,g):
+                masks.append(False)
+            else:
+                masks.append(True)
+            tool.delanedge(g,e)
+        return [elist[i] for i in range(len(elist)) if masks[i]]
+
+
+
     @memo
     def addedges(g,H,edges):
         if edges:
-            masks  = []
-            for e in edges:
-                tool.addanedge(g,e)
-                if tool.checkconflict(H,g):
-                    masks.append(False)
-                else:
-                    masks.append(True)
-                tool.delanedge(g,e)
-
-            nedges = [edges[i] for i in range(len(edges)) if masks[i]]
+            nedges = prune_conflicts(H, g, edges)
             n = len(nedges)
-            if n:
-                for i in range(n):
-                    tool.addanedge(g,nedges[i])
-                    if tool.checkequality(H,g):
-                        s.add(tool.gsig(g))
-                    addedges(g,H,nedges[:i]+nedges[i+1:])
-                    tool.delanedge(g,nedges[i])
+
+            if n == 0: return None
+
+            for i in range(n):
+                tool.addanedge(g,nedges[i])
+                if tool.checkequality(H,g): s.add(tool.gsig(g))
+                addedges(g,H,nedges[:i]+nedges[i+1:])
+                tool.delanedge(g,nedges[i])
 
     edges = tool.edgelist(tool.complement(g))
+    d = {}
+    c = 0
+    for e in edges:
+        d[e] = c
+        c += 1
+    c = 0
     addedges(g,H,edges)
     return s
 
@@ -394,269 +426,9 @@ def eqclass(H):
 
 
 def main():
-
-    #TESTING SUPERGRAPH
-
-    #from email "a task for you"
-    #g = {
-    #'1': {'2': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)]), '6': set([(0, 1)]), '8': set([(0, 1)])},
-    #'6': {'6': set([(0, 1)]), '7': set([(0, 1)])},
-    #'7': {'8': set([(0, 1)])},
-    #'8': {'1': set([(0, 1)]),'3': set([(0, 1)]),'4': set([(0, 1)]),'7': set([(0, 1)]),'8': set([(0, 1)])}
-    #}
-    #g2 = tool.undersample(g, 1)
-    #h is a supergraph in the equivalence class of g with the extra edge (5,7)
-    #h = {
-    #'1': {'2': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)]), '6': set([(0, 1)]), '7': set([(0, 1)]), '8': set([(0, 1)])},
-    #'6': {'6': set([(0, 1)]), '7': set([(0, 1)])},
-    #'7': {'8': set([(0, 1)])},
-    #'8': {'1': set([(0, 1)]),'3': set([(0, 1)]),'4': set([(0, 1)]),'7': set([(0, 1)]),'8': set([(0, 1)])}
-    #}
-    #supergraphs_in_eq(g, g2, 1) #contains h! yay!
-
-    #from email
-    #g = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #g3 = tool.undersample(g,2)
-    #h1-h4 are ALL the supergraphs of g that lead to the same g3
-    #h1 = {
-    #'1': {'2': set([(0, 1)]), '3': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #h2 = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'2': set([(0, 1)]), '4': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #h3 = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #h4 = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #supergraphs_in_eq(g, g3, 2) #h1-h4 are all found! yay!
-
-
-
-
-
-
-
-
-
-    #TESTING SUBGRAPH
-
-    #from email "a task for you"
-    #g = {
-    #'1': {'2': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)]), '6': set([(0, 1)]), '7': set([(0, 1)]), '8': set([(0, 1)])},
-    #'6': {'6': set([(0, 1)]), '7': set([(0, 1)])},
-    #'7': {'8': set([(0, 1)])},
-    #'8': {'1': set([(0, 1)]),'3': set([(0, 1)]),'4': set([(0, 1)]),'7': set([(0, 1)]),'8': set([(0, 1)])}
-    #}
-    #h is a subgraph in the equivalence class of g with the extra edge (5,7)
-    #h = {
-    #'1': {'2': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)]), '7': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)]), '6': set([(0, 1)]), '8': set([(0, 1)])},
-    #'6': {'6': set([(0, 1)]), '7': set([(0, 1)])},
-    #'7': {'8': set([(0, 1)])},
-    #'8': {'1': set([(0, 1)]),'3': set([(0, 1)]),'4': set([(0, 1)]),'7': set([(0, 1)]),'8': set([(0, 1)])}
-    #}
-    #g2 = tool.undersample(g, 1)
-    #subgraphs_in_eq(g, g2, 1) #contains h! yay!
-
-    #from email
-    #g = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #g3 = tool.undersample(g,2)
-    #h1-h3 are all subrgraphs of g that lead to the same g3
-    #note h1 is the minimal G1
-    #h1 = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #h2 = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'2': set([(0, 1)]), '4': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #h3 = {
-    #'1': {'2': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)]), '4': set([(0, 1)])},
-    #'3': {'4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '4': set([(0, 1)]), '5': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)])}
-    #}
-    #subgraphs_in_eq(g, g3, 2) #h1-h3 are all found! yay!
-    #findminG1(g,g3,2)   #returns h1
-    #findAllGraphs(g, g3, 2)
-
-
-
-
-
-
-
-
-
-
-
-    #TESTING strawman GU to G1 ALG
-    #random
-    #H = {
-    #'1': {'1': set([(0, 1)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '4': set([(0, 1)])},
-    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)])},
-    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
-    #}
-    #max_u=5
-    #strawmangutog1(H,max_u)
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #TESTING exploding GU TO G1 ALG
-
-    #random
-    #H = {
-    #'1': {'1': set([(0, 1)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '4': set([(0, 1)])},
-    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)])},
-    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
-    #}
-    #max_u=5
-    #(G,u) = explodinggutog1(H,max_u) #find a G such that H = G^2
-    #print "graph is: ",G," and u is: ",u
-    #print "in hash notation, G is ",tool.g2num(G)
-    #does this G satisfy G^2=H?
-    #test = tool.undersample(G,1)
-    #if H == test:
-    #    print "yes"
-
-    #H= {
-    #'1': {'3': set([(2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])},
-    #'3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])},
-    #'2': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1), (2, 0)])},
-    #'5': {'1': set([(2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(2, 0)]), '4': set([(0, 1), (2, 0)])},
-    #'4': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '5': set([(0, 1), (2, 0)]), '4': set([(0, 1)])}
-    #}
-    #max_u=2
-    #(G,u) = explodinggutog1(H,max_u) #find a G such that H = G^2
-    #print "graph is: ",G," and u is: ",u
-    #here is the G that is returned
-    #G = {
-    #'1': {'4': set([(0, 1)])},
-    #'3': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '5': set([(0, 1)]), '4': set([(0, 1)])},
-    #'2': {'3': set([(0, 1)])},
-    #'5': {'1': set([(0, 1)]), '2': set([(0, 1)])},
-    #'4': {'2': set([(0, 1)]), '5': set([(0, 1)]), '4': set([(0, 1)])}
-    #}
-    #does this G satisfy G^2=H?
-    #test = tool.undersample(G,1)
-    #if H == test:
-    #    print "yes"
-
-
-
-
-
-
-
-
-
-
-
-    #TESTING HOPEFUL GU to G1 Algorithm
-
-    H = {
-    '1': {'1': set([(0, 1)]), '3': set([(0, 1), (2, 0)]), '2': set([(0, 1), (2, 0)]), '4': set([(0, 1)])},
-    '3': {'1': set([(0, 1), (2, 0)]), '3': set([(0, 1)]), '2': set([(0, 1), (2, 0)])},
-    '2': {'1': set([(0, 1), (2, 0)]), '3': set([(2, 0)]), '2': set([(0, 1)])},
-    '4': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)]), '4': set([(0, 1)])}
-    }
-
-    t0 = time.time()
-    print hopefulgutog1(H)
-    t1 = time.time()
-    total = t1-t0
-    print "time in seconds: ", total
-
-    #two G's are found
-    #G = {
-    #'1': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)])},
-    #'3': {'1': set([(0, 1)]), '3': set([(0, 1)])},
-    #'2': {'4': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
-    #}
-    #G = {
-    #'1': {'1': set([(0, 1)]), '3': set([(0, 1)]), '2': set([(0, 1)])},
-    #'3': {'1': set([(0, 1)])},
-    #'2': {'4': set([(0, 1)])},
-    #'4': {'1': set([(0, 1)]), '2': set([(0, 1)])}
-    #}
-
-    #does this G satisfy G^2=H?
-    #test = tool.undersample(G,1)
-    #if H == test:
-    #    print "yes"
-
-    #H= {
-    #'1': {'2': set([(1, 0)])},
-    #'2': {'1': set([(1, 0)]), '2': set([(1, 0)])},
-    #'3': {'1': set([(1, 0)]), '2': set([(1, 0)])}
-    #}
-    #hopefulgutog1(H) #can't find any
+    g = bfu.ringmore(4,2); H = bfu.undersample(g,1);
+    ss = eqclass(H)
+    print ss
 
 
 if __name__ == "__main__":
