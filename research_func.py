@@ -10,16 +10,6 @@ TOOLSPATH='../gunfolds/tools/'
 sys.path.append(os.path.expanduser(TOOLSPATH))
 
 import bfutils as bfu
-# import graphkit as gk
-# import traversal as trv
-# import linear_model as lm
-# import numpy as np
-# import pc
-
-#import sys,os
-#TOOLSPATH='~/Users/cynthia/Desktop/Causality/Causality-Research/mytools.py'
-#sys.path.append(os.path.expanduser(TOOLSPATH))
-
 import mytools as tool
 
 #returns all the supergraphs of g that are in the same equivalence class
@@ -368,6 +358,26 @@ def memo(func):
         return cache[s]               # Return the cached solution
     return wrap
 
+def prune_conflicts(H, g, elist):
+    """checks if adding an edge from the list to graph g causes a
+    conflict with respect to H and if it does removes the edge
+    from the list
+    
+    Arguments:
+    - `H`: the undersampled graph
+    - `g`: a graph under construction
+    - `elist`: list of edges to check
+    """
+    masks  = []
+    for e in elist:
+        tool.addanedge(g,e)
+        if tool.checkconflict(H,g):
+            masks.append(False)
+        else:
+            masks.append(True)
+        tool.delanedge(g,e)
+    return [elist[i] for i in range(len(elist)) if masks[i]]
+
 
 def eqclass(H):
     '''
@@ -376,27 +386,6 @@ def eqclass(H):
     '''
     g = {n:{} for n in H}
     s = set()
-
-    def prune_conflicts(H, g, elist):
-        """checks if adding an edge from the list to graph g causes a
-        conflict with respect to H and if it does removes the edge
-        from the list
-
-        Arguments:
-        - `H`: the undersampled graph
-        - `g`: a graph under construction
-        - `elist`: list of edges to check
-        """
-        masks  = []
-        for e in elist:
-            tool.addanedge(g,e)
-            if tool.checkconflict(H,g):
-                masks.append(False)
-            else:
-                masks.append(True)
-            tool.delanedge(g,e)
-        return [elist[i] for i in range(len(elist)) if masks[i]]
-
 
 
     @memo
