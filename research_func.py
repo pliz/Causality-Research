@@ -5,19 +5,20 @@ from functools import wraps
 import copy
 import time
 import sys,os
-TOOLSPATH='~/soft/src/dev/craft/gunfolds/tools/'
+
+TOOLSPATH='../gunfolds/tools/'
 sys.path.append(os.path.expanduser(TOOLSPATH))
 
 import bfutils as bfu
-import graphkit as gk
-import traversal as trv
-import linear_model as lm
-import numpy as np
-import pc
+# import graphkit as gk
+# import traversal as trv
+# import linear_model as lm
+# import numpy as np
+# import pc
 
-import sys,os
-TOOLSPATH='~/Users/cynthia/Desktop/Causality/Causality-Research/mytools.py'
-sys.path.append(os.path.expanduser(TOOLSPATH))
+#import sys,os
+#TOOLSPATH='~/Users/cynthia/Desktop/Causality/Causality-Research/mytools.py'
+#sys.path.append(os.path.expanduser(TOOLSPATH))
 
 import mytools as tool
 
@@ -427,7 +428,7 @@ def eqclass(H):
 
 def main():
     g = bfu.ringmore(4,2);
-    H = bfu.undersample(g,1);
+    H = bfu.undersample(g,2);
     ss = eqclass(H)
     print ss
 
