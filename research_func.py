@@ -412,10 +412,10 @@ def eqclass(H):
                 if tool.checkequality(H,g): return tool.gsig(g)
                 s.add(addedges(g,H,nedges[:i]+nedges[i+1:]))
                 tool.delanedge(g,nedges[i])
-                
+
     edges = tool.edgelist(tool.complement(g))
     addedges(g,H,edges)
-    return s
+    return s-set([None])
 
 
 
